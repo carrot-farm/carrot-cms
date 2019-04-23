@@ -1,14 +1,26 @@
-require("dotenv").config();
 import Express, { Router } from "express";
-import bodyParser from "body-parser";
 
-import basicRouter from "./router";
+// import mongoose from "./config/mongoose";
+import mysql from "./config/mysql";
+import { appMiddleware } from "./middlewares";
+import cms from "./cms";
 
+const { PORT: port } = process.env;
 const app = Express();
 const router = Router();
 
-// app.use('/basic', )
+// mongodb 접속
+// mongoose();
 
-const server = app.listen(3000, () => {
-  console.log("server listen 3000");
+// 미들웨어 적용
+appMiddleware(app, mysql);
+
+// mysql 커넥션 미들웨어 적용
+// app.use("/", mysql);
+
+// api 라우팅
+app.use("/cms", cms);
+
+const server = app.listen(port, () => {
+  console.log(`server listen ${port}`);
 });
