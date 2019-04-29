@@ -1,8 +1,19 @@
 import mysql from "mysql2/promise";
 
 // 기본 쿼리
-const runQuery = (pool, query, useTransaction, unRelease) => {
+const runQuery = (pool, query, _options) => {
   let connection;
+  let options = {
+    useTransaction: false, // true 일 경우 트랜젝션 시작
+    unRelease: false, // true 일 경우 커넥션을 반환 안함.
+    returnStripArray: false, // result 의 array의 첫번째 객체만 반환.
+    returnOneValue: "" // key 값이 있을 경우 result의 해당 키값만 반화
+  };
+  if (options) {
+    options = {
+      ..._options
+    };
+  }
   return new Promise(async (resolve, reject) => {
     try {
       connection = await pool.getConnection();
@@ -51,6 +62,7 @@ class Mysql {
   }
   // 테이블 셋팅
   table(tableName, type) {
+    this.clear();
     this.tableName = tableName;
     this.type = type.toUpperCase();
     return this;
@@ -192,7 +204,10 @@ class Mysql {
   // 쿼리 실행
   runQuery(_query) {
     console.log("*** runQquery\n", _query);
-    return runQuery(this.pool, _query, this.transaction, this.unRelease);
+    return runQuery(this.pool, _query, {
+      useTransaction: this.transaction,
+      unRelease: this.unRelease
+    });
   }
 }
 
