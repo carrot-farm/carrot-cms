@@ -27,5 +27,3 @@ passportMiddleware.localStrategy();
 const server = app.listen(port, () => {
   console.log(`server listen ${port}`);
 });
-
-console.log("git test");

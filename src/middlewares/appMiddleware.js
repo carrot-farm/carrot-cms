@@ -1,6 +1,7 @@
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import cors from "cors";
 
 const appMiddleware = (app, mysql) => {
   // express 용 body paser
