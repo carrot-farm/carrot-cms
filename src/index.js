@@ -9,8 +9,6 @@ const { PORT: port } = process.env;
 const app = Express();
 const router = Router();
 
-// test dddd
-console.log("et");
 // mongodb 접속
 // mongoose();
 
