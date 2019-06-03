@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    // js decorator 오류 표시 안함.
+    "experimentalDecorators": true
+  }
+}

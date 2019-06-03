@@ -1,0 +1,6 @@
+{
+    "git.ignoreLimitWarning": true,
+    "eslint.autoFixOnSave": true,
+    "editor.formatOnSave": true,
+    "javascript.format.enable": false
+}
