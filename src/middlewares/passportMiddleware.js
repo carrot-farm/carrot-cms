@@ -3,12 +3,15 @@ import JWTPassport from "passport-jwt";
 import localPassport from "passport-local";
 import googlePassport from "passport-google-auth";
 
-import { pbkdf2Async } from "lib/helper";
+import { pbkdf2Async, getIp } from "lib/tools";
 
 // ===== 설정
 const {
   TOKEN_SECRET: tokenSecret,
-  TOKEN_REFRESH_SECRET: refreshTokenSecret
+  TOKEN_REFRESH_SECRET: refreshTokenSecret,
+  GOOGLE_CLIENT_ID: googleClientId,
+  GOOGLE_CLINET_SECRET: googleClientSecret,
+  HOST: host
 } = process.env;
 
 // ========== jwt 인증 전략
@@ -102,7 +105,6 @@ const localStrategy = () => {
       },
       async (email, password, done) => {
         try {
-          console.log("*** ", email, password);
           return done(null, { email: "eamil" });
 
           if (!user) {
@@ -123,35 +125,51 @@ const localStrategy = () => {
 };
 
 // ========== 구글 인증 전략
-// local에서 작업을 완료 못했음.
-const googleStrategy = () => {
+const toDoGoogleStrategy = () => {
+  const { joinUser, getUser } = require("api/toDo/auth/auth.ctrl");
   const strategy = googlePassport.Strategy;
+
   passport.use(
-    "google",
+    "toDoGoogle",
     new strategy(
       {
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        callbackURL: googleCallbackUrl,
+        callbackURL: `${host}:${process.env.PORT ||
+          4000}/api/toDo/auth/google/callback`,
         passReqToCallback: true,
         session: false
       },
-      (req, token, tokenS, profile, done) => {
-        // console.log('***** req', req.query);
-        // console.log('***** token', token);
-        // console.log('***** tokenSecret', tokenS);
-        // console.log('***** profile', profile);
-        // console.log('***** done', done);
-        done(null, { tes: "test" });
+      async (req, token, tokenS, profile, done) => {
+        const { emails, id, displayName } = profile;
+        const email = emails[0].value;
+        try {
+          const user = await getUser(email);
+          if (!user) {
+            throw new Error("대상을 찾을 수 없습니다.");
+          }
+          done(null, { email, _id: user._id });
+        } catch (e) {
+          done(false, null, {
+            error: true,
+            message: e.message
+          });
+        }
       }
     )
   );
 };
 
-export default {
-  jwtStrategy,
-  refreshStrategy,
-  localStrategy,
-  googleStrategy,
-  adminStrategy
+// ===== 초기화
+const initialize = app => {
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  jwtStrategy();
+  refreshStrategy();
+  adminStrategy();
+  localStrategy();
+  toDoGoogleStrategy();
 };
+
+export default initialize;

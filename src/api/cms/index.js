@@ -6,10 +6,10 @@ import member from "./member";
 // import { authMiddleware } from "../middlewares";
 // import user from "./user";
 
-const router = new Router();
+const api = new Router();
 
-// router.use("/admin", admin);
-// router.use("/auth", auth);
-router.use("/member", member);
+// api.use("/admin", admin);
+// api.use("/auth", auth);
+api.use("/member", member);
 
-export default router;
+export default api;
